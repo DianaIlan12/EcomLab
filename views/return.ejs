@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Document</title>
+  </head>
+  <body>
+    <form action="/" method="POST">
+      <input type="hidden" id="statusInp" name="status" value="" />
+    </form>
+    <div id="wait" style="display: flex; width: 100%; height: 100vh; justify-content: center; align-items: center;">გადახდა მოწმდება..</div>
+    <script>
+      let from = document.querySelector('form')
+      let statusInp = document.getElementById('statusInp')
+      let wait = document.getElementById('wait')
+      let returnId = "<%= id %>";
+      const returnFunc = async () => {
+        let payId;
+        await fetch(`/api/payment/returnId/${returnId}`)
+          .then((res) => res.json())
+          .then((data) => {
+            fetch(`/api/payment/${data[0].payId}`, { method: "PUT" })
+                .then(res => res.json())
+                .then(data => {
+                    let status = data.details.status
+                    if(data.result !== 'failed') {
+                        wait.innerText = 'გადახდაზე ინფორმაცია წარმატებით განახლდა, დაელოდე გადამისამართებას';
+                        statusInp.value = status
+                        from.submit()
+                    } else {
+                        alert('გადახდის შესახებ ინფორმაციის წამოღება ვერ მოხდა.');
+                        wait.innerHTML = '<a href="/">დაბრუნდი მთავარ გვერდზე!</a>'
+                    }
+                })
+          })
+          .catch(err => {
+            alert('გადახდა ვერ მოიძებნა ბაზაში')
+            wait.innerHTML = '<a href="/">დაბრუნდი მთავარ გვერდზე!</a>'
+          })
+      };
+      returnFunc();
+    </script>
+  </body>
+</html>

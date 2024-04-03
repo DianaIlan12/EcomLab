@@ -1,0 +1,283 @@
+<html lang="en">
+
+<head>
+  <meta charSet="UTF-8" />
+  <meta httpEquiv="X-UA-Compatible" content="IE=edge" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Payments</title>
+  <link rel="stylesheet" href="./static/style.css" />
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet" />
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+  <link rel="stylesheet"
+    href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.6.0/styles/base16/railscasts.min.css">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.6.0/highlight.min.js"></script>
+  <script src="./static/qrcode.min.js"></script>
+</head>
+
+<body>
+  <div class="container-fluid mt-2">
+    <!-- Button trigger modal -->
+    <button type="button" class="btn btn-primary mt-2" data-bs-toggle="modal" data-bs-target="#staticBackdrop">
+      გადახდის შექმნა
+    </button>
+    <button onclick="qrPayment()" type="button" class="btn btn-primary mt-2" data-bs-toggle="modal"
+      data-bs-target="#staticBackdrop5">
+      QR გადახდა
+    </button>
+    <!-- List of payments -->
+    <hr>
+    <div class="table-responsive">
+      <table id="table" class="table">
+        <thead>
+          <tr>
+            <th scope="col">PaymentID</th>
+            <th scope="col">Date</th>
+            <th scope="col">Currency</th>
+            <th scope="col">Amount</th>
+            <th scope="col">Status</th>
+            <th scope="col">Type</th>
+            <!-- <th scope="col">Save card</th> -->
+            <th scope="col">Methods</th>
+            <th scope="col">Mask</th>
+            <th scope="col">Confirmed Amount</th>
+            <th scope="col">Retruned Amount</th>
+            <th scope="col">Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+        </tbody>
+      </table>
+
+
+    </div>
+    <!-- QR MODAL -->
+    <div class="modal fade" id="staticBackdrop5" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1"
+      aria-labelledby="staticBackdropLabel" aria-hidden="true">
+      <div class="modal-dialog">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title" id="staticBackdropLabel">QR გადახდა</h5>
+            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+          </div>
+          <div class="modal-body">
+            <div class="input-group flex-nowrap d-flex justify-content-center">
+              <div
+                style="width: 200px; height: 200px; position: relative; display: flex; justify-content: center; align-items: center;">
+                <div>
+                  <span class="loader"></span>
+                </div>
+                <div id="qrResult"
+                  style="position: absolute; top: 0; left: 0; width: 200px; height: 200px; background-color: white; display: flex; justify-content: center; align-items: center; visibility: hidden;"></div>
+                <div id="qrcode" style="position: absolute; top: 0; left: 0;"></div>
+              </div>
+            </div>
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+          </div>
+        </div>
+      </div>
+    </div>
+    <!-- PAGINATION START -->
+    <nav aria-label="...">
+      <ul class="pagination justify-content-center">
+      </ul>
+    </nav>
+    <!-- PAGINATION END -->
+    <!-- Modal -->
+    <div class="modal fade" id="staticBackdrop" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1"
+      aria-labelledby="staticBackdropLabel" aria-hidden="true">
+      <div class="modal-dialog modal-xl">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title" id="staticBackdropLabel">გადახდის შექმნა</h5>
+            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+          </div>
+          <div class="modal-body">
+            <!-- FORM STARTED -->
+            <form>
+              <div class="input mb-3">
+                <label for="" class="form-label">Amount</label>
+                <input id="amount" type="number" class="form-control" aria-label="Sizing example input"
+                  aria-describedby="inputGroup-sizing-default">
+                <button id="amountBtn" class="border d-inline p-2 mt-2 btn btn-light btn-sm" type="button">0.05</button>
+                <button id="amountBtn" class="border d-inline p-2 mt-2 btn btn-light btn-sm" type="button">0.10</button>
+                <button id="amountBtn" class="border d-inline p-2 mt-2 btn btn-light btn-sm" type="button">0.20</button>
+              </div>
+              <div class="input mb-3">
+                <label for="" class="form-label">Currency</label>
+                <select id="currency" class="form-select" aria-label="Default select example">
+                  <option value="GEL">GEL</option>
+                  <option value="USD">USD</option>
+                  <option value="EUR">EUR</option>
+                </select>
+              </div>
+              <div class="input mb-3">
+                <label for="" class="form-label">Payment Methods</label></br>
+                <div class="form-check form-check-inline">
+                  <input class="form-check-input" type="checkbox" id="QR" value="4" checked>
+                  <label class="form-check-label" for="QR">Web QR</label>
+                </div>
+                <div class="form-check form-check-inline">
+                  <input class="form-check-input" type="checkbox" id="PAN" value="5" checked>
+                  <label class="form-check-label" for="PAN">Pan (Card)</label>
+                </div>
+                <div class="form-check form-check-inline">
+                  <input class="form-check-input" type="checkbox" id="EP" value="6" checked>
+                  <label class="form-check-label" for="EP">Ertguli Points</label>
+                </div>
+                <div class="form-check form-check-inline">
+                  <input class="form-check-input" type="checkbox" id="IB" value="7" checked>
+                  <label class="form-check-label" for="IB">Internet Bank</label>
+                </div>
+                <div class="form-check form-check-inline">
+                  <input class="form-check-input" type="checkbox" id="AP" value="9" checked>
+                  <label class="form-check-label" for="AP">Apple Pay</label>
+                </div>
+              </div>
+              <div class="input mb-3">
+                <div class="form-check form-switch">
+                  <input class="form-check-input" type="checkbox" id="DMS">
+                  <label class="form-check-label" for="DMS">Pre Authorization</label>
+                </div>
+                <div class="form-check form-switch">
+                  <input class="form-check-input" type="checkbox" id="reccuring" value="">
+                  <label class="form-check-label" for="reccuring">Reccuring Payment</label>
+                </div>
+                <div id="cardsList">
+                </div>
+                <div class="CardMsgArea"></div>
+                <div class="form-check form-switch">
+                  <input class="form-check-input" type="checkbox" id="saveCard">
+                  <label class="form-check-label" for="saveCard">Save Card</label>
+                </div>
+                <div id="cardOwner" class="input-group mt-2">
+                  <span class="input-group-text" id="basic-addon1">Card owner</span>
+                  <input id="ownerInp" type="text" style="flex: 0 1 200px;" class="form-control" placeholder="Name"
+                    aria-label="Card owner" aria-describedby="basic-addon1">
+                </div>
+              </div>
+              <div class="input mb-3">
+                <label class="form-label">Language</label></br>
+                <div class="form-check form-check-inline">
+                  <input id="language" class="form-check-input" type="radio" name="inlineRadioOptions" id="KA"
+                    value="KA" checked>
+                  <label class="form-check-label" for="KA"><img src="../static/imgs/ka.jpg" width="25px"
+                      style="margin-top: 4px;" class="rounded" /></label>
+                </div>
+                <div class="form-check form-check-inline">
+                  <input id="language" class="form-check-input" type="radio" name="inlineRadioOptions" id="EN"
+                    value="EN">
+                  <label class="form-check-label" for="EN"><img src="../static/imgs/en.jpg" width="25px"
+                      style="margin-top: 4px;" class="rounded" /></label>
+                </div>
+              </div>
+            </form>
+          </div>
+          <div class="modal-footer">
+            <button type="payButton" class="btn btn-primary" onclick="startPayment(event)">
+              <span id="btnLoader" class="spinner-border spinner-border-sm d-none" role="status"
+                aria-hidden="true"></span>
+              Create
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+    <!-- LOG MODAL -->
+    <div class="modal fade" id="staticBackdrop4" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1"
+      aria-labelledby="staticBackdropLabel" aria-hidden="true">
+      <div class="modal-dialog modal-xl">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title" id="staticBackdropLabel">Logs</h5>
+            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+          </div>
+          <div class="modal-body">
+            <div class="input-group flex-nowrap">
+              <div class="table-responsive" style="width: 100%">
+                <table id="table" class="table">
+                  <thead>
+                    <tr>
+                      <th scope="col">Request</th>
+                      <th scope="col">Response</th>
+                    </tr>
+                  </thead>
+                  <tbody id="logarea">
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <!-- REFUND MODAL -->
+    <div class="modal fade" id="staticBackdrop2" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1"
+      aria-labelledby="staticBackdropLabel" aria-hidden="true">
+      <div class="modal-dialog modal-xl">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title" id="staticBackdropLabel">თანხის დაბრუნება</h5>
+            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+          </div>
+          <div class="modal-body">
+            <div class="input-group flex-nowrap">
+              <input type="hidden" id="refPayId">
+              <input type="text" id="refInp" class="form-control" placeholder="დასაბრუნებელი თანხა">
+            </div>
+          </div>
+          <div class="modal-footer">
+            <button type="payButton" class="btn btn-primary" onclick="refundPaymentPrc(event)">
+              <span id="btnLoaderRefund" class="spinner-border spinner-border-sm d-none" role="status"
+                aria-hidden="true"></span>
+              Refund
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+    <!-- Complition MODAL -->
+    <div class="modal fade" id="staticBackdrop3" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1"
+      aria-labelledby="staticBackdropLabel" aria-hidden="true">
+      <div class="modal-dialog modal-xl">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title" id="staticBackdropLabel">პრე-ავტორიზაციის დადასტურება</h5>
+            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+          </div>
+          <div class="modal-body">
+            <div class="input-group flex-nowrap">
+              <input type="hidden" id="compPayId">
+              <input type="text" id="compInp" class="form-control" placeholder="დასადასტურებელი თანხა">
+            </div>
+          </div>
+          <div class="modal-footer">
+            <button type="payButton" class="btn btn-primary" onclick="completePaymentPrc(event)">
+              <span id="btnLoaderCompl" class="spinner-border spinner-border-sm d-none" role="status"
+                aria-hidden="true"></span>
+              Complition
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+    <script src="../static/api/ws.js" type="module"></script>
+    <script src="../static/api/vars.js"></script>
+    <script src="../static/api/dom.js"></script>
+    <script src="../static/api/events.js"></script>
+    <script src="../static/api/funcs.js"></script>
+    <script src="../static/api/calls.js"></script>
+    <script>
+      let status = "<%= status %>";
+      if (status == "Failed") {
+        AlertMsg(2, "გადახდა წარუმატებელია!", 5)
+      } else if (status == "Succeeded") {
+        AlertMsg(0, "გადახდა წარმატებულია!", 5)
+      } else if (status == "WaitingConfirm") {
+        AlertMsg(0, "პრე-ავტორიზაცია წარმატებულია!", 5)
+      }
+    </script>
+</body>
+
+</html>

@@ -1,0 +1,7 @@
+== Info:   Trying 91.235.243.69:18443...
+== Info: TCP_NODELAY set
+== Info: Connected to ecommerce.ufc.ge (91.235.243.69) port 18443 (#0)
+== Info: ALPN, offering h2
+== Info: ALPN, offering http/1.1
+== Info: could not load PEM client certificate, OpenSSL error error:02001002:system library:fopen:No such file or directory, (no key found, wrong pass phrase, or wrong file format?)
+== Info: Closing connection 0
